@@ -1,194 +1,189 @@
 import inquirer from "inquirer";
 
- class Student{
-    static counter = 10000;
-    id : number
-    name: string;
-    courses: string[];
-    balance : number;
-
+class Player{
+    name:string;
+    fuel:number=100;
     constructor(name:string){
-
-        this.id = Student.counter++;
-        this.name = name;
-        this.courses = [];
-        this.balance = 100 ;
-
+        this.name=name;
     }
-     enroll_course(course : string){
-        this.courses.push(course)
-     }
+    fuelDecrease(){
+        let fuel = this.fuel - 25
+        this.fuel= fuel
+    }
+    fuelINcrease(){
+        this.fuel= 100
+    }
+}
 
-     view_balance(){
-        console.log(`Ballance for ${this.name} : ${this.balance}`);
+class Opponent{
+    name:string;
+    fuel:number=100;
+    constructor(name:string){
+        this.name=name;
+    }
+    fuelDecrease(){
+        let fuel = this.fuel - 25
+        this.fuel= fuel
+    }
+}
 
-     }
+let player = await inquirer.prompt([
+    {
+        name:"name",
+        type: "input",
+        message: "Please Enter your name",
+    }
+]) 
 
-     pay_fees(amount : number){
-        this.balance -= amount;
-        console.log(`$${amount} fees paid succefully for ${this.name}`);
-        console.log(`Remainig balance is  $${this.balance}`)
+let oppponent = await inquirer.prompt([
+    {
+        name: "select",
+        type: "list",
+        message: "select your opponent",
+        choices: ["Skeleton", "Alien", "Zombie"]
+    }
+])
 
-     }
+let p1= new Player(player.name)
+let o1= new Opponent(oppponent.select)
 
-      show_status(){
-        console.log(`ID: ${this.id}`);
-        console.log(`Name: ${this.name}`);
-        console.log(`Course : ${this.courses}`);
-        console.log(`Balance : ${this.balance}`);
-
-      }
- }
-
-
- class Students_manager{
-   students : Student[]
-
-   constructor(){
-      this.students= [];
-   }
-
-   add_student(name: string){
-      let student = new Student(name);
-      this.students.push(student);
-
-      console.log(`Student : ${name} added successfully. Student ID: ${student.id}`);
-   }
-
-   enroll_student(student_id: number, course: string){
-      let student = this.find_student(student_id);
-      if(student){
-         student.enroll_course(course);
-         console.log(`${student.name} enroll in ${course} successfully`);
-      }
-   }
-   view_student_balance(student_id: number){
-      let student = this.find_student(student_id);
-      if(student){
-         student.view_balance();
-      }
-      else{
-         console.log("Student not found. Please Enter a correct Student ID")
-      }
-   }
-
-   pay_student_fees(student_id: number, amount: number){
-      let student = this.find_student(student_id);
-      if (student){
-         student.pay_fees(amount);
-
-      }
-      else{
-         console.log("Student not found. Please Enter a correct Student ID")
-      }
-   }
-   show_student_status(student_id: number){
-      let student = this.find_student(student_id);
-      if(student){
-         student.show_status();
-      }
-   }
-
-
-   find_student(student_id: number){
-      return this.students.find(std => std.id === student_id)
-   }
- }
-  async function main() {
-   console.log("WellCome To 'Code With Qadeer' Students Managment System");
-   console.log('-'.repeat(60));
-    
-   let student_manager = new Students_manager(); 
-
-   while(true){
-      let choice = await inquirer.prompt([
-         {
-            name: "choice",
-            type: "list",
-            message: "Select an Option",
-            choices: [
-               "Add Student",
-               "Enroll Student",
-               "View Student Balance",
-               "Pay Fees",
-               "Show Student Status",
-               "Exit"
-            ]
-         }
-      ])
-
-      switch(choice.choice){
-         case "Add Student":
-         let name_input = await inquirer.prompt([
+do{
+    if(oppponent.select ==="Skeleton"){
+        let ask = await inquirer.prompt([
             {
-               name: "name",
-               type: "input",
-               message: "Enter Your Name",
+                name: "opt",
+                type: "list",
+                message: "What would you like to do?",
+                choices: ["Attack", "Drink Portion", "Run for your life"]
             }
-         ])
-         student_manager.add_student(name_input.name)
-         break;
-         case "Enroll Student":
-            let course_input = await inquirer.prompt([
-               {
-                  name: "student_id",
-                  type: "number",
-                  message: "Enter a Student ID",
-               },
-               {
-                  name: " course",
-                   type: "input",
-                   message: " Enter a Course Name",
-         
-                  
-               }
-            ]);
-            student_manager.enroll_student(course_input.student_id, course_input.course);
-            break;
+        ]);
+        if (ask.opt === "Attack"){
+            let num =Math.floor (Math.random() * 2)
+            if (num>0){
+                p1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(p1.fuel <= 0){
+                    console.log("you loose, better luck for next time");
+                    process.exit()
+                }
+                
+            }
+            if (num<=0){
+                o1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(o1.fuel <= 0){
+                    console.log("You Winn the game");
+                    process.exit()
+            }
+                
+        }
+        if (ask.opt === "Drink Portion"){
+            p1.fuelINcrease()
+            console.log(`you drink health portion, your fuel is ${p1.fuel}`);
+            
 
-            case "View Student Balance":
-               let balance_input = await inquirer.prompt([
-                  {
-                     name: "student_id",
-                     type: "number",
-                     message: "Enter a Student ID",
-                  }
-               ]);
-               student_manager.view_student_balance(balance_input.student_id);
-               break;
+        }
+        if (ask.opt === "Run for your life"){
+            console.log(" you loose, better luck for next time")
+            process.exit()
+        }
+        
+        }
+    }
 
-               case "Pay Fees":
-                  let fees_input = await inquirer.prompt([
-                     {
-                        name: "student_id",
-                        type: "number",
-                        message: " Enter a Student ID",
-                     },
-                     {
-                        name: "amount",
-                        type: "number",
-                        message: "Enter the Payment to pay",
-                     }
-                  ]);
-                  student_manager.pay_student_fees(fees_input.student_id, fees_input.amount);
-                  break;
+    // Alien
+    if(oppponent.select ==="Alien"){
+        let ask = await inquirer.prompt([
+            {
+                name: "opt",
+                type: "list",
+                message: "What would you like to do?",
+                choices: ["Attack", "Drink Portion", "Run for your life"]
+            }
+        ]);
+        if (ask.opt === "Attack"){
+            let num =Math.floor (Math.random() * 2)
+            if (num>0){
+                p1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(p1.fuel <= 0){
+                    console.log("you loose, better luck for next time");
+                    process.exit()
+                }
+                
+            }
+            if (num<=0){
+                o1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(o1.fuel <= 0){
+                    console.log("You Winn the game");
+                    process.exit()
+            }
+                
+        }
+        if (ask.opt === "Drink Portion"){
+            p1.fuelINcrease()
+            console.log(`you drink health portion, your fuel is ${p1.fuel}`);
+            
 
-                  case "Show Student Status":
-                     let status_input = await inquirer.prompt([
-                        {
-                           name: "student_id",
-                           type: "number",
-                           message: " Enter a Student ID",
-                        }
-                     ]);
-                     student_manager.show_student_status(status_input.student_id);
-                     break;
+        }
+        if (ask.opt === "Run for your life"){
+            console.log(" you loose, better luck for next time")
+            process.exit()
+        }
+        
+        }
+    }
 
-                     case "Exit":
-                        console.log("Exiting.....");
-                        process.exit();
-      }
-   }
-  }
+    //Zombai
 
-  main();
+    if(oppponent.select ==="Zombie"){
+        let ask = await inquirer.prompt([
+            {
+                name: "opt",
+                type: "list",
+                message: "What would you like to do?",
+                choices: ["Attack", "Drink Portion", "Run for your life"]
+            }
+        ]);
+        if (ask.opt === "Attack"){
+            let num =Math.floor (Math.random() * 2)
+            if (num>0){
+                p1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(p1.fuel <= 0){
+                    console.log("you loose, better luck for next time");
+                    process.exit()
+                }
+                
+            }
+            if (num<=0){
+                o1.fuelDecrease()
+                console.log(`${p1.name} fuel is ${p1.fuel}`);
+                console.log(`${o1.name} fuel is ${o1.fuel}`);
+                if(o1.fuel <= 0){
+                    console.log("You Winn the game");
+                    process.exit()
+            }
+                
+        }
+        if (ask.opt === "Drink Portion"){
+            p1.fuelINcrease()
+            console.log(`you drink health portion, your fuel is ${p1.fuel}`);
+            
+
+        }
+        if (ask.opt === "Run for your life"){
+            console.log(" you loose, better luck for next time")
+            process.exit()
+        }
+        
+        }
+    }
+}
+while(true)
